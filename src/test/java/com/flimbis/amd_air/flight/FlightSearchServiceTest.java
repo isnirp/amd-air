@@ -3,10 +3,14 @@ package com.flimbis.amd_air.flight;
 import com.amadeus.Amadeus;
 import com.amadeus.Params;
 import com.amadeus.ReferenceData;
+import com.amadeus.Shopping;
 import com.amadeus.referencedata.Locations;
+import com.amadeus.resources.FlightOfferSearch;
 import com.amadeus.resources.Location;
+import com.amadeus.shopping.FlightOffersSearch;
 import com.flimbis.amd_air.common.AmdConnect;
 import com.flimbis.amd_air.model.FlightMapper;
+import com.flimbis.amd_air.model.FlightOfferSearchRequestDto;
 import com.flimbis.amd_air.model.LocationDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,5 +62,34 @@ class FlightSearchServiceTest {
 
         assertEquals(1, result.size());
         assertEquals(dto, result.get(0));
+    }
+
+    @Test
+    void testSearchFlightOffers_whenValidRequest_shouldReturnFLightOffers() throws Exception {
+        FlightOfferSearchRequestDto request = new FlightOfferSearchRequestDto();
+        request.setOrigin("JFK");
+        request.setDestination("LON");
+        request.setDepartureDate("2026-09-01");
+        request.setAdults(2);
+
+        Amadeus amadeus = mock(Amadeus.class);
+        amadeus.shopping = mock(Shopping.class);
+        amadeus.shopping.flightOffersSearch = mock(FlightOffersSearch.class);
+        when(amd.getAmadeus()).thenReturn(amadeus);
+
+        Params params = Params.with("originLocationCode", request.getOrigin())
+                .and("destinationLocationCode", request.getDestination())
+                .and("departureDate", request.getDepartureDate())
+                .and("adults", String.valueOf(request.getAdults()))
+                .and("max", 5);
+
+        FlightOfferSearch offer = mock(FlightOfferSearch.class);
+        FlightOfferSearch[] offers = new FlightOfferSearch[]{offer};
+        when(amadeus.shopping.flightOffersSearch.get(params)).thenReturn(offers);
+
+        FlightOfferSearch[] result = service.searchFlightOffers(request);
+
+        assertEquals(1, result.length);
+        assertEquals(offer, result[0]);
     }
 }
