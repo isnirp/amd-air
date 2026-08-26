@@ -28,13 +28,17 @@ import static org.mockito.Mockito.when;
 class FlightSearchServiceTest {
 
     private FlightSearchService service;
+
     @Mock
-    private AmdConnect amd;
+    private Amadeus amadeus;
     @Mock
     private FlightMapper mapper;
 
     @BeforeEach
     void setUp() {
+        AmdConnect amd =  mock(AmdConnect.class);
+        when(amd.getAmadeus()).thenReturn(amadeus);
+
         service = new FlightSearchService(amd, mapper);
     }
 
@@ -42,10 +46,8 @@ class FlightSearchServiceTest {
     void testSearchLocation_whenValidKeyword_shouldReturnLocation() throws Exception {
         String locationKeyword = "LON";
 
-        Amadeus amadeus = mock(Amadeus.class);
         amadeus.referenceData = mock(ReferenceData.class);
         amadeus.referenceData.locations = mock(Locations.class);
-        when(amd.getAmadeus()).thenReturn(amadeus);
 
         Location location = mock(Location.class);
         when(amadeus.referenceData.locations.get(Params
@@ -72,10 +74,8 @@ class FlightSearchServiceTest {
         request.setDepartureDate("2026-09-01");
         request.setAdults(2);
 
-        Amadeus amadeus = mock(Amadeus.class);
         amadeus.shopping = mock(Shopping.class);
         amadeus.shopping.flightOffersSearch = mock(FlightOffersSearch.class);
-        when(amd.getAmadeus()).thenReturn(amadeus);
 
         Params params = Params.with("originLocationCode", request.getOrigin())
                 .and("destinationLocationCode", request.getDestination())
