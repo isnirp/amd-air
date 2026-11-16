@@ -87,7 +87,7 @@ class FlightSearchServiceTest {
         FlightOfferSearch[] offers = new FlightOfferSearch[]{offer};
         when(amadeus.shopping.flightOffersSearch.get(params)).thenReturn(offers);
 
-        FlightOfferSearch[] result = service.searchFlightOffers(request);
+        FlightOfferSearch[] result = service.searchFlightOffers(request, 0);
 
         assertEquals(1, result.length);
         assertEquals(offer, result[0]);
