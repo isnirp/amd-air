@@ -4,10 +4,13 @@ import com.amadeus.Amadeus;
 import com.amadeus.Params;
 import com.amadeus.ReferenceData;
 import com.amadeus.Shopping;
+import com.amadeus.exceptions.ResponseException;
 import com.amadeus.referencedata.Locations;
 import com.amadeus.resources.FlightOfferSearch;
+import com.amadeus.resources.FlightPrice;
 import com.amadeus.resources.Location;
 import com.amadeus.shopping.FlightOffersSearch;
+import com.amadeus.shopping.flightoffers.Pricing;
 import com.flimbis.amd_air.common.AmdConnect;
 import com.flimbis.amd_air.model.FlightMapper;
 import com.flimbis.amd_air.model.FlightOfferSearchRequestDto;
@@ -21,6 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -91,5 +95,21 @@ class FlightSearchServiceTest {
 
         assertEquals(1, result.length);
         assertEquals(offer, result[0]);
+    }
+
+    @Test
+    void testConfirmOfferPrice_whenVAlidRequest_shouldReturnFLightPrice() throws ResponseException {
+        amadeus.shopping = mock(Shopping.class);
+        amadeus.shopping.flightOffersSearch = mock(FlightOffersSearch.class);
+        amadeus.shopping.flightOffersSearch.pricing = mock(Pricing.class);
+
+        FlightOfferSearch flightOffer = mock(FlightOfferSearch.class);
+        FlightPrice flightPrice = mock(FlightPrice.class);
+        when(amadeus.shopping.flightOffersSearch.pricing.post(flightOffer)).thenReturn(flightPrice);
+
+        FlightPrice result = service.confirmFlightOfferPrice(flightOffer);
+
+        assertNotNull(result);
+        assertEquals(flightPrice, result);
     }
 }
