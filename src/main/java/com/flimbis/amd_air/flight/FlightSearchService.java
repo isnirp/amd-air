@@ -4,6 +4,7 @@ import com.amadeus.Params;
 import com.amadeus.exceptions.ResponseException;
 import com.amadeus.referencedata.Locations;
 import com.amadeus.resources.FlightOfferSearch;
+import com.amadeus.resources.FlightPrice;
 import com.amadeus.resources.Location;
 import com.flimbis.amd_air.common.AmdConnect;
 import com.flimbis.amd_air.model.FlightMapper;
@@ -45,7 +46,6 @@ public class FlightSearchService {
         log.info("step1: Flight Offers Search > searching flight offers for origin: {} and destination: {}",
                 request.getOrigin(), request.getDestination());
 
-
         Params params = Params.with("originLocationCode", request.getOrigin())
                 .and("destinationLocationCode", request.getDestination())
                 .and("departureDate", request.getDepartureDate())
@@ -53,6 +53,13 @@ public class FlightSearchService {
                 .and("max", getMaxOffers(offerCount));
 
         return amd.getAmadeus().shopping.flightOffersSearch.get(params);
+    }
+
+    // step 2: confirm the availability and price with Flight Offers Price
+    public FlightPrice confirmFlightOfferPrice(@NonNull FlightOfferSearch flightOffer) throws ResponseException {
+        log.info("step2: Flight Offers Price > confirming price for offer id: {}", flightOffer.getId());
+
+        return amd.getAmadeus().shopping.flightOffersSearch.pricing.post(flightOffer);
     }
 
     private int getMaxOffers(Integer offerCount) {

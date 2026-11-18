@@ -87,6 +87,11 @@
 			<artifactId>amadeus-java</artifactId>
 			<version>10.0.0</version>
 		</dependency>
+		<!-- amadeus-java declares gson as runtime-only, but its API (e.g. Pricing.post overloads) exposes gson types -->
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
