@@ -1,5 +1,6 @@
 package com.flimbis.amd_air.flight;
 
+import com.amadeus.Amadeus;
 import com.amadeus.Params;
 import com.amadeus.exceptions.ResponseException;
 import com.amadeus.referencedata.Locations;
@@ -21,18 +22,18 @@ import java.util.Objects;
 @Slf4j
 @Service
 public class FlightSearchService {
-    private final AmdConnect amd;
+    private final Amadeus amd;
     private final FlightMapper mapper;
 
     public FlightSearchService(AmdConnect amdConnect, FlightMapper flightMapper) {
-        this.amd = amdConnect;
+        this.amd = amdConnect.getAmadeus();
         this.mapper = flightMapper;
     }
 
     public List<LocationDto> searchLocation(@NonNull String keyword) throws ResponseException {
         log.info("searching location: {}", keyword);
 
-        Location[] locations = amd.getAmadeus().referenceData.locations.get(Params
+        Location[] locations = amd.referenceData.locations.get(Params
                 .with("keyword", keyword)
                 .and("subType", Locations.AIRPORT));
 
@@ -52,14 +53,14 @@ public class FlightSearchService {
                 .and("adults", String.valueOf(request.getAdults()))
                 .and("max", getMaxOffers(offerCount));
 
-        return amd.getAmadeus().shopping.flightOffersSearch.get(params);
+        return amd.shopping.flightOffersSearch.get(params);
     }
 
     // step 2: confirm the availability and price with Flight Offers Price
     public FlightPrice confirmFlightOfferPrice(@NonNull FlightOfferSearch flightOffer) throws ResponseException {
         log.info("step2: Flight Offers Price > confirming price for offer id: {}", flightOffer.getId());
 
-        return amd.getAmadeus().shopping.flightOffersSearch.pricing.post(flightOffer);
+        return amd.shopping.flightOffersSearch.pricing.post(flightOffer);
     }
 
     private int getMaxOffers(Integer offerCount) {
